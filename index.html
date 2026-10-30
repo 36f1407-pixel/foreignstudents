@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>외국인 유학생 커리어 & 비자 메이트 | Foreign Student Career & Visa Mate</title>
+  
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          },
+          colors: {
+            pinkSoft: '#FFF0F3',
+            pinkLight: '#FFE3E8',
+            pinkAccent: '#FF6B8B',
+            pinkDeep: '#FF477E',
+            darkSlate: '#1A202C',
+            mutedSlate: '#4A5568',
+            glassBorder: 'rgba(255, 107, 139, 0.2)',
+          },
+          boxShadow: {
+            glass: '0 8px 32px 0 rgba(255, 107, 139, 0.12)',
+            glow: '0 0 20px rgba(255, 71, 126, 0.3)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- DEFINE GLOBAL JAVASCRIPT FUNCTIONS IN HEAD TO PREVENT REFERENCEERRORS ONCLICK -->
+  <script>
+    // Global state variables
+    let currentLang = 'ko';
+    let currentStep = 0;
+    let userAnswers = {};
+    let radarChartInstance = null;
+    let kosisMajorChartInstance = null;
+    let kosisRegionChartInstance = null;
+
+    // 1. FULL MULTI-LANGUAGE DICTIONARY
+    const i18n = {
+      ko: {
+        langName: "🇰🇷 한국어",
+        title: "외국인 유학생 커리어 & 비자 메이트",
+        navDiag: "비자 진단",
+        navKosis: "KOSIS 통계",
+        navAi: "AI 컨설턴트",
+        navScanner: "서류 스캐너",
+        navJobs: "채용 & KSCO",
+        diagTitle: "스마트 비자 대화형 진단기",
+        diagSub: "질문에 차례대로 답변한 후 '최종 결과 확인' 버튼을 누르면 맞춤형 비자 승인 리포트가 생성됩니다.",
+        kosisTitle: "KOSIS 국가통계 기반 유학생 정주 및 취업 데이터",
+        kosisSub: "통계청 및 법무부 출입국 외국인 정책본부 공공데이터 결합 지표입니다.",
+        aiTitle: "2026 AI 출입국 전문 비자 컨설턴트",
+        aiSub: "하이코리아 최신 지침과 법무부 출입국 행정 규칙이 반영되어 있습니다.",
+        scannerTitle: "AI 비자 서류 자동 검증 시뮬레이터",
+        scannerSub: "외국인등록증, TOPIK, 근로계약서 스캔하여 비자 신청 적격성을 검증합니다.",
+        jobsTitle: "E-7 비자 발급 가능 KSCO 직종 매칭 채용관",
+        jobsSub: "E-7-1 전문인력 비자가 허용되는 87개 KSCO 직종 매칭 채용 정보입니다.",
+        btnShowResult: "🎉 모든 답변 완료! 최종 비자 진단 결과서 보기",
+        printBtn: "PDF 출력",
+        btnReset: "다시 하기",
+        btnEditAnswers: "답변 수정하기",
+        reportCompleteTag: "진단이 완료되었습니다.",
+        lblPreset: "⚡ 빠른 프리셋:",
+        chatBotName: "비자메이트 보람이 🐰",
+        chatBotSub: "2026 출입국 기준 자격 진단",
+        lblTargetVisa: "목표 비자",
+        lblDifficulty: "난이도",
+        cardMatch: "비자 적합도",
+        cardF27: "F-2-7 예상 점수",
+        cardTopik: "TOPIK / KIIP",
+        cardGni: "GNI 연봉 충족율",
+        lblRadarTitle: "5대 역량 다각도 레이더 분석",
+        lblMatrixTitle: "주요 비자별 자격 충족 여부",
+        lblF27CalcTitle: "F-2-7 점수제 비자 실시간 정밀 계산기 (2026 기준)",
+        lblF27Age: "연령 (최대 25점)",
+        lblF27Degree: "학력 (최대 25점)",
+        lblF27Topik: "한국어/KIIP (최대 20점)",
+        lblF27Income: "소득 (최대 60점)",
+        lblRoadmapTitle: "단계별 성공 로드맵",
+        roadmapS1T: "0 ~ 3개월: 서류 준비 및 조건 충족",
+        roadmapS1D: "• TOPIK 5급 유지 또는 KIIP 5단계 수강 신청.<br>• 표준근로계약서 작성을 위한 회사 국민고용 인원 (최소 5명) 확인.",
+        roadmapS2T: "3 ~ 6개월: 비자 변경 신청 및 서류 심사",
+        roadmapS2D: "• 하이코리아(HiKorea) 온라인 예약 또는 출입국 관서 방문.<br>• 고용사유서, 학위증명서, 신원보증서 등 필수 서류 제출.",
+        roadmapS3T: "6 ~ 12개월: 외국인등록증 발급 및 차기 승급",
+        roadmapS3D: "• 신규 외국인등록증(ARC) 수령.<br>• F-2-7 전환을 위한 소득 증빙 체계적 관리.",
+        kpi1L: "2026 유학생 국내 취업률", kpi1S: "전년 대비 지속 증가 추세",
+        kpi2L: "E-7 비자 전환 성공 비율", kpi2S: "STEM 및 이공계 비율이 우세",
+        kpi3L: "F-2-R 지역 특화 정주 증가율", kpi3S: "지자체 추천제 확대로 급증",
+        kpi4L: "평균 초임 연봉 (대졸 유학생)", kpi4S: "GNI 80% 기준(약 3,600만 원) 근접",
+        chart1Title: "전공 계열별 취업률 및 평균 시작 연봉",
+        chart2Title: "지역별 외국인 유학생 정주 분포",
+        aiWelcome: "안녕하세요! 외국인 유학생 커리어 & 비자 메이트 AI 컨설턴트입니다. 비자 조건, 제출 서류, 연봉 요건에 대해 무엇이든 질문해 주세요!",
+        aiClearBtn: "초기화", aiSendBtn: "전송",
+        scanDrop: "서류 파일 선택 또는 드래그", scanSupport: "JPG, PNG, PDF 지원 (샘플 서류로 바로 테스트 가능)",
+        scanResTitle: "AI 서류 정밀 분석 결과", scanPlace: "좌측에서 테스트할 샘플 서류를 선택해 보세요.",
+        btnArc: "📑 외국인등록증", btnContract: "📝 근로계약서", btnTopik: "🎓 TOPIK 성적표",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 현재 학력 및 최종 전공 계열이 어떻게 되시나요?',
+            options: [
+              { label: 'STEM 공학/IT (석사 이상)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM 공학/IT (학사)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: '경영/인문 (학사/석사)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: '지방대 전공 (F-2-R 대상)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ 한국어 능력 (TOPIK 또는 KIIP 사회통합프로그램) 보유 단계는?',
+            options: [
+              { label: 'TOPIK 5~6급 / KIIP 5단계', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK 3~4급 / KIIP 4단계', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK 1~2급 / 미보유', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 채용 예정 기업의 제시 연봉(소득) 수준은?',
+            options: [
+              { label: '3,800만 원 이상 (GNI 100% 충족)', value: 'gni_100', gniPercent: 105 },
+              { label: '3,300만 원 ~ 3,600만 원 (GNI 80%~)', value: 'gni_80', gniPercent: 92 },
+              { label: '3,000만 원 미만', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 채용 회사 내 한국인 내국인 고용 인원수는?',
+            options: [
+              { label: '5명 이상 (E-7 발급 조건 충족)', value: 'valid_company' },
+              { label: '5명 미만 (별도 사유서 필요)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['학력 수준', '한국어(TOPIK)', '연봉 충족도', '전공 연관성', '기업 적격성'],
+        quickPrompts: ['F-2-7 80점 가산점 꿀팁', 'E-7 국민고용 20% 규칙', 'D-10 구직계획서 작성법', 'F-2-R 지자체 추천 노하우'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'E-7-1 가능', title: 'AI/풀스택 백엔드 개발자', comp: '(주)테크이노베이션 | 서울', salary: '3,800만 원 ~ 4,500만 원', req: '컴퓨터공학/STEM 계열' },
+          { code: 'KSCO 2742', tag: 'E-7-1 가능', title: '글로벌 해외영업 담당자', comp: '(주)글로벌커머스 | 판교', salary: '3,600만 원 (GNI 80% 충족)', req: 'TOPIK 5급 이상' },
+          { code: 'KSCO 2399', tag: 'F-2-R 가산점', title: '스마트팜 연구원', comp: '(주)그린바이오 | 전북 익산', salary: '3,300만 원 (지자체 추천)', req: '농학/바이오 전공' }
+        ]
+      },
+      zh: {
+        langName: "🇨🇳 中文",
+        title: "外国留学生职业与签证助手",
+        navDiag: "签证诊断", navKosis: "KOSIS 统计", navAi: "AI 顾问", navScanner: "文件扫描", navJobs: "招聘与职业",
+        diagTitle: "智能签证互动诊断工具",
+        diagSub: "依次回答问题后，点击“查看最终结果”按钮即可生成个性化签证评估报告。",
+        kosisTitle: "基于 KOSIS 国家统计的留学生就业与居住数据", kosisSub: "韩国统计局与法务部出入境政策本部联合数据。",
+        aiTitle: "2026 AI 出入境专业签证顾问", aiSub: "已整合 HiKorea 最新指南与法务部行政法规。",
+        scannerTitle: "AI 签证文件自动验证模拟器", scannerSub: "扫描外国人登录证、TOPIK 成绩单及合同以验证签证资格。",
+        jobsTitle: "支持 E-7 签证的 KSCO 职位招聘馆", jobsSub: "允许申请 E-7-1 专业人才签证的 87 个 KSCO 职业信息。",
+        btnShowResult: "🎉 回答完成！查看最终签证诊断报告",
+        printBtn: "打印 PDF", btnReset: "重新开始", btnEditAnswers: "修改回答",
+        reportCompleteTag: "诊断已完成。", lblPreset: "⚡ 快速预设:",
+        chatBotName: "签证助手 宝蓝 🐰", chatBotSub: "2026 出入境资格评估",
+        lblTargetVisa: "目标签证", lblDifficulty: "办理难度",
+        cardMatch: "签证契合度", cardF27: "F-2-7 预估得分", cardTopik: "TOPIK / KIIP", cardGni: "GNI 年薪达标率",
+        lblRadarTitle: "五维能力多角雷达分析", lblMatrixTitle: "各类签证资格达标情况",
+        lblF27CalcTitle: "F-2-7 积分制签证打分计算器 (2026 标准)",
+        lblF27Age: "年龄 (最高25分)", lblF27Degree: "学历 (最高25分)", lblF27Topik: "韩语/KIIP (最高20分)", lblF27Income: "收入 (最高60分)",
+        lblRoadmapTitle: "分阶段成功路线图",
+        roadmapS1T: "0 ~ 3个月: 材料准备与条件满足",
+        roadmapS1D: "• 保持 TOPIK 5级或申请 KIIP 第5阶段。<br>• 确认签约公司国民雇佣人数（至少5名）。",
+        roadmapS2T: "3 ~ 6个月: 签证变更申请与审查",
+        roadmapS2D: "• HiKorea 线上预约或前往出入境管理所。<br>• 提交雇用事由书、学位证明、身分保证书等材料。",
+        roadmapS3T: "6 ~ 12个月: 领证与后续升级",
+        roadmapS3D: "• 领取新的外国人登录证(ARC)。<br>• 系统化管理收入证明，为转 F-2-7 做准备。",
+        kpi1L: "2026 留学生韩国就职率", kpi1S: "同比持续上升",
+        kpi2L: "E-7 签证转换成功率", kpi2S: "STEM 及理工科占优",
+        kpi3L: "F-2-R 区域特化居住增长", kpi3S: "因地方政府推荐制而快速增长",
+        kpi4L: "本科毕业留学生平均起薪", kpi4S: "接近 GNI 80% 标准 (约3600万韩元)",
+        chart1Title: "各专业系列就业率与平均起薪", chart2Title: "留学生居住区域分布",
+        aiWelcome: "您好！我是留学生职业与签证 AI 顾问。关于签证条件、申请材料和薪资要求，欢迎随时提问！",
+        aiClearBtn: "重置", aiSendBtn: "发送",
+        scanDrop: "选择或拖拽文件", scanSupport: "支持 JPG, PNG, PDF (可用示例材料进行测试)",
+        scanResTitle: "AI 材料精细分析结果", scanPlace: "请在左侧选择示例材料进行测试。",
+        btnArc: "📑 外国人登录证", btnContract: "📝 劳动合同", btnTopik: "🎓 TOPIK 成绩单",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 您目前的学历与最终专业领域是什么？',
+            options: [
+              { label: 'STEM 理工/IT (硕士及以上)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM 理工/IT (学士)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: '商科/人文 (学士/硕士)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: '地方大学专业 (F-2-R 对象)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ 您的韩语能力 (TOPIK 或 KIIP 社会统合节目) 等级是？',
+            options: [
+              { label: 'TOPIK 5~6级 / KIIP 5阶段', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK 3~4级 / KIIP 4阶段', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK 1~2级 / 未取得', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 拟签约企业的年薪 (收入) 水平是？',
+            options: [
+              { label: '3,800万韩元以上 (达标 GNI 100%)', value: 'gni_100', gniPercent: 105 },
+              { label: '3,300万 ~ 3,600万韩元 (达标 GNI 80%~)', value: 'gni_80', gniPercent: 92 },
+              { label: '3,000万韩元以下', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 招聘公司的韩国本地员工人数是？',
+            options: [
+              { label: '5人以上 (满足 E-7 签发条件)', value: 'valid_company' },
+              { label: '少于5人 (需要单独事由书)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['学历水平', '韩语(TOPIK)', '薪资达标', '专业关联', '企业资格'],
+        quickPrompts: ['F-2-7 80分加分技巧', 'E-7 本国人雇用20%规则', 'D-10 求职计划书写法', 'F-2-R 地方政府推荐攻略'],
+        jobs: [
+          { code: 'KSCO 2221', tag: '可申请 E-7-1', title: 'AI / 全栈后端开发人员', comp: 'Tech Innovation | 首尔', salary: '3,800万 ~ 4,500万韩元', req: '计算机/STEM 相关' },
+          { code: 'KSCO 2742', tag: '可申请 E-7-1', title: '全球海外营业担当', comp: 'Global Commerce | 板桥', salary: '3,600万韩元 (满足 GNI 80%)', req: 'TOPIK 5级以上' },
+          { code: 'KSCO 2399', tag: 'F-2-R 加分项', title: '智慧农场研究员', comp: 'Green Bio | 全北益山', salary: '3,300万韩元 (地方推荐)', req: '农学/生物专业' }
+        ]
+      },
+      vi: {
+        langName: "🇻🇳 Tiếng Việt",
+        title: "Hỗ Trợ Định Cư & Visa Du Học Sinh",
+        navDiag: "Chẩn Đoán Visa", navKosis: "Thống Kê KOSIS", navAi: "Cố Vấn AI", navScanner: "Quét Hồ Sơ", navJobs: "Việc Làm KSCO",
+        diagTitle: "Công Cụ Chẩn Đoán Visa Thông Minh",
+        diagSub: "Trả lời từng câu hỏi và nhấn 'Xem kết quả' để nhận báo cáo đánh giá visa chi tiết.",
+        kosisTitle: "Dữ Liệu Thống Kê Quốc Gia KOSIS Về Việc Làm Du Học Sinh", kosisSub: "Dữ liệu kết hợp từ Cục Thống kê và Cục Quản lý Xuất nhập cảnh.",
+        aiTitle: "Cố Vấn AI Chuyên Visa Xuất Nhập Cảnh 2026", aiSub: "Đã cập nhật hướng dẫn mới nhất từ HiKorea và Cục Xuất nhập cảnh.",
+        scannerTitle: "Mô Phỏng Tự Động Kiểm Tra Hồ Sơ Visa AI", scannerSub: "Quét thẻ ARC, TOPIK và hợp đồng để xác minh điều kiện visa.",
+        jobsTitle: "Cổng Tuyển Dụng Ngành KSCO Hỗ Trợ Visa E-7", jobsSub: "Thông tin tuyển dụng cho 87 ngành nghề KSCO hỗ trợ visa E-7-1.",
+        btnShowResult: "🎉 Hoàn thành! Xem Báo Cáo Chẩn Đoán Visa",
+        printBtn: "In PDF", btnReset: "Làm lại", btnEditAnswers: "Sửa câu trả lời",
+        reportCompleteTag: "Đã hoàn thành chẩn đoán.", lblPreset: "⚡ Mẫu nhanh:",
+        chatBotName: "Trợ lý Boram 🐰", chatBotSub: "Chẩn đoán tiêu chuẩn 2026",
+        lblTargetVisa: "Visa mục tiêu", lblDifficulty: "Độ khó",
+        cardMatch: "Độ phù hợp", cardF27: "Điểm F-2-7 dự kiến", cardTopik: "TOPIK / KIIP", cardGni: "Mức lương GNI",
+        lblRadarTitle: "Phân tích đa chiều 5 năng lực cốt lõi", lblMatrixTitle: "Khả năng đáp ứng từng loại visa",
+        lblF27CalcTitle: "Bảng tính điểm Visa F-2-7 (Tiêu chuẩn 2026)",
+        lblF27Age: "Tuổi (Tối đa 25 điểm)", lblF27Degree: "Học vấn (Tối đa 25 điểm)", lblF27Topik: "Tiếng Hàn/KIIP (Tối đa 20 điểm)", lblF27Income: "Thu nhập (Tối đa 60 điểm)",
+        lblRoadmapTitle: "Lộ trình thành công từng bước",
+        roadmapS1T: "0 ~ 3 Tháng: Chuẩn bị hồ sơ và điều kiện",
+        roadmapS1D: "• Duy trì TOPIK 5 hoặc đăng ký KIIP Lớp 5.<br>• Kiểm tra công ty có tối thiểu 5 nhân viên người Hàn.",
+        roadmapS2T: "3 ~ 6 Tháng: Nộp hồ sơ và xét duyệt visa",
+        roadmapS2D: "• Đặt lịch HiKorea hoặc đến Cục Xuất nhập cảnh.<br>• Nộp đơn giải trình, bằng cấp, giấy bảo lĩnh.",
+        roadmapS3T: "6 ~ 12 Tháng: Nhận thẻ ARC và chuẩn bị thăng hạng",
+        roadmapS3D: "• Nhận thẻ ARC mới.<br>• Quản lý chứng minh thu nhập để chuyển sang F-2-7.",
+        kpi1L: "Tỷ lệ du học sinh có việc làm 2026", kpi1S: "Tăng đều so với năm ngoái",
+        kpi2L: "Tỷ lệ chuyển đổi Visa E-7 thành công", kpi2S: "Ngành STEM chiếm ưu thế",
+        kpi3L: "Tỷ lệ tăng trưởng định cư F-2-R", kpi3S: "Tăng mạnh nhờ tiến cử địa phương",
+        kpi4L: "Lương khởi điểm trung bình", kpi4S: "Gần đạt 80% GNI (~36 triệu KRW)",
+        chart1Title: "Tỷ lệ việc làm & Mức lương theo chuyên ngành", chart2Title: "Phân bố du học sinh định cư theo khu vực",
+        aiWelcome: "Xin chào! Tôi là Cố vấn AI về Visa & Sự nghiệp. Bạn có thắc mắc gì về điều kiện visa, hồ sơ hay mức lương không?",
+        aiClearBtn: "Xóa", aiSendBtn: "Gửi",
+        scanDrop: "Chọn hoặc kéo thả tệp", scanSupport: "Hỗ trợ JPG, PNG, PDF (Có thể thử với tệp mẫu)",
+        scanResTitle: "Kết quả phân tích hồ sơ AI", scanPlace: "Vui lòng chọn tệp mẫu bên trái để thử nghiệm.",
+        btnArc: "📑 Thẻ người nước ngoài", btnContract: "📝 Hợp đồng lao động", btnTopik: "🎓 Bằng TOPIK",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 Trình độ học vấn và chuyên ngành của bạn là gì?',
+            options: [
+              { label: 'STEM Công nghệ/IT (Thạc sĩ+)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM Công nghệ/IT (Cử nhân)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: 'Kinh tế/Xã hội (Cử nhân/Thạc sĩ)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: 'Tốt nghiệp ĐH Tỉnh (Diện F-2-R)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ Trình độ tiếng Hàn (TOPIK hoặc KIIP) của bạn?',
+            options: [
+              { label: 'TOPIK Cấp 5~6 / KIIP Lớp 5', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK Cấp 3~4 / KIIP Lớp 4', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK Cấp 1~2 / Chưa có', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 Mức lương dự kiến từ công ty tuyển dụng?',
+            options: [
+              { label: 'Trên 38 triệu KRW (Đạt 100% GNI)', value: 'gni_100', gniPercent: 105 },
+              { label: '33 ~ 36 triệu KRW (Đạt 80% GNI)', value: 'gni_80', gniPercent: 92 },
+              { label: 'Dưới 30 triệu KRW', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 Số lượng nhân viên người Hàn tại công ty tuyển dụng?',
+            options: [
+              { label: 'Từ 5 người trở lên (Đủ điều kiện E-7)', value: 'valid_company' },
+              { label: 'Dưới 5 người (Cần lý do đặc biệt)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['Học vấn', 'Tiếng Hàn(TOPIK)', 'Mức lương', 'Chuyên ngành', 'Quy mô cty'],
+        quickPrompts: ['Mẹo cộng điểm F-2-7 lên 80 điểm', 'Quy định tuyển 20% người ngoại quốc E-7', 'Cách viết kế hoạch xin D-10', 'Bí quyết xin tiến cử F-2-R'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'Cấp được E-7-1', title: 'Lập trình viên Backend AI', comp: 'Tech Innovation | Seoul', salary: '38 ~ 45 triệu KRW', req: 'Ngành IT / STEM' },
+          { code: 'KSCO 2742', tag: 'Cấp được E-7-1', title: 'Quản lý kinh doanh quốc tế', comp: 'Global Commerce | Pangyo', salary: '36 triệu KRW (80% GNI)', req: 'TOPIK Cấp 5+' },
+          { code: 'KSCO 2399', tag: 'Cộng điểm F-2-R', title: 'Nghiên cứu Nông nghiệp thông minh', comp: 'Green Bio | Iksan', salary: '33 triệu KRW (Tiến cử tỉnh)', req: 'Ngành Nông nghiệp/Sinh học' }
+        ]
+      },
+      en: {
+        langName: "🇺🇸 English",
+        title: "International Student Career & Visa Mate",
+        navDiag: "Visa Diagnosis", navKosis: "KOSIS Stats", navAi: "AI Consultant", navScanner: "Doc Scanner", navJobs: "Jobs & KSCO",
+        diagTitle: "Smart Interactive Visa Diagnostic Tool",
+        diagSub: "Answer the questions step-by-step and click 'View Final Results' to generate your personalized visa report.",
+        kosisTitle: "KOSIS National Statistics on Student Settlement & Employment", kosisSub: "Combined dataset from Statistics Korea and Ministry of Justice Immigration Service.",
+        aiTitle: "2026 AI Immigration & Visa Expert Consultant", aiSub: "Updated with the latest HiKorea guidelines and Ministry of Justice rules.",
+        scannerTitle: "AI Visa Document Verification Simulator", scannerSub: "Scan your Alien Registration Card, TOPIK report, and contract to verify eligibility.",
+        jobsTitle: "KSCO Job Matching Hall for E-7 Visa", jobsSub: "Job listings matched with 87 KSCO categories eligible for E-7-1 professional visa.",
+        btnShowResult: "🎉 Completed! View Final Visa Assessment Report",
+        printBtn: "Export PDF", btnReset: "Reset", btnEditAnswers: "Edit Answers",
+        reportCompleteTag: "Assessment complete.", lblPreset: "⚡ Quick Presets:",
+        chatBotName: "Visa Mate Boram 🐰", chatBotSub: "2026 Immigration Eligibility Check",
+        lblTargetVisa: "Target Visa", lblDifficulty: "Difficulty",
+        cardMatch: "Visa Match Rate", cardF27: "Est. F-2-7 Score", cardTopik: "TOPIK / KIIP", cardGni: "GNI Salary Ratio",
+        lblRadarTitle: "5-Core Competency Radar Analysis", lblMatrixTitle: "Eligibility Breakdown by Visa Type",
+        lblF27CalcTitle: "F-2-7 Points Calculator (2026 Standards)",
+        lblF27Age: "Age (Max 25 pts)", lblF27Degree: "Education (Max 25 pts)", lblF27Topik: "Korean/KIIP (Max 20 pts)", lblF27Income: "Income (Max 60 pts)",
+        lblRoadmapTitle: "Step-by-Step Success Roadmap",
+        roadmapS1T: "0 ~ 3 Months: Document Prep & Requirement Check",
+        roadmapS1D: "• Maintain TOPIK Level 5 or register for KIIP Level 5.<br>• Verify employer's local Korean headcount (minimum 5 employees).",
+        roadmapS2T: "3 ~ 6 Months: Visa Change Application & Review",
+        roadmapS2D: "• Book online via HiKorea or visit local immigration office.<br>• Submit employment justification letter, degree cert, guarantee form.",
+        roadmapS3T: "6 ~ 12 Months: ARC Issuance & Next Upgrade",
+        roadmapS3D: "• Receive new Alien Registration Card (ARC).<br>• Systematically manage income tax proof for F-2-7 conversion.",
+        kpi1L: "2026 Student Employment Rate", kpi1S: "Steadily rising YoY",
+        kpi2L: "E-7 Visa Transition Rate", kpi2S: "STEM majors lead success",
+        kpi3L: "F-2-R Regional Retention Growth", kpi3S: "Surged via local recommendations",
+        kpi4L: "Avg. Graduate Starting Salary", kpi4S: "Close to GNI 80% threshold (~36M KRW)",
+        chart1Title: "Employment Rate & Salary by Major", chart2Title: "Student Regional Settlement Distribution",
+        aiWelcome: "Hello! I am your AI Visa & Career Consultant. Feel free to ask any questions regarding visa eligibility, documents, or salary requirements!",
+        aiClearBtn: "Clear", aiSendBtn: "Send",
+        scanDrop: "Select or drag files here", scanSupport: "Supports JPG, PNG, PDF (Sample docs available for test)",
+        scanResTitle: "AI Document Verification Output", scanPlace: "Select a sample document from the left to test.",
+        btnArc: "📑 ARC Card", btnContract: "📝 Work Contract", btnTopik: "🎓 TOPIK Scorecard",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 What is your current academic degree and major field?',
+            options: [
+              { label: 'STEM Engineering/IT (Master+)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM Engineering/IT (Bachelor)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: 'Business/Humanities (Bachelor/Master)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: 'Regional University (F-2-R Candidate)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ What is your Korean language proficiency (TOPIK / KIIP)?',
+            options: [
+              { label: 'TOPIK Level 5~6 / KIIP Stage 5', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK Level 3~4 / KIIP Stage 4', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK Level 1~2 / None', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 What is the offered annual salary from your employer?',
+            options: [
+              { label: '38 Million KRW+ (100% GNI Met)', value: 'gni_100', gniPercent: 105 },
+              { label: '33 ~ 36 Million KRW (80%+ GNI Met)', value: 'gni_80', gniPercent: 92 },
+              { label: 'Under 30 Million KRW', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 How many local Korean employees work at the hiring company?',
+            options: [
+              { label: '5 or more (E-7 Condition Met)', value: 'valid_company' },
+              { label: 'Under 5 (Requires special justification)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['Education', 'Korean(TOPIK)', 'Salary Level', 'Major Match', 'Company Qual.'],
+        quickPrompts: ['How to reach 80 pts on F-2-7', 'E-7 20% local hiring quota rule', 'D-10 Job Seeking Plan tips', 'F-2-R Regional recommendation guide'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'E-7-1 Eligible', title: 'AI / Full-Stack Backend Developer', comp: 'Tech Innovation | Seoul', salary: '38M ~ 45M KRW', req: 'Computer Science / STEM' },
+          { code: 'KSCO 2742', tag: 'E-7-1 Eligible', title: 'Global Overseas Sales Specialist', comp: 'Global Commerce | Pangyo', salary: '36M KRW (GNI 80% met)', req: 'TOPIK Level 5+' },
+          { code: 'KSCO 2399', tag: 'F-2-R Bonus', title: 'Smart Farm Research Specialist', comp: 'Green Bio | Iksan', salary: '33M KRW (Local Rec.)', req: 'Agriculture / Bio Major' }
+        ]
+      },
+      uz: {
+        langName: "🇺🇿 O'zbekcha",
+        title: "Chet El Talabalari Uchun Vizalar va Martaba Yordamchisi",
+        navDiag: "Viza Diagnostikasi", navKosis: "KOSIS Statistikasi", navAi: "AI Konsultant", navScanner: "Hujjat Skaneri", navJobs: "Ish O'rinlari",
+        diagTitle: "Aqlli Viza Diagnostika Tizimi",
+        diagSub: "Savollarga ketma-ket javob bering va yakuniy viza hisobotini olish uchun 'Natijani ko'rish' tugmasini bosing.",
+        kosisTitle: "KOSIS Milliy Statistikasi: Ish Bilan Ta'minlanish Va Yashash", kosisSub: "Koreya Statistika Boshqarmasi va Adliya Vazirligi ma'lumotlari.",
+        aiTitle: "2026 AI Migratsiya Va Viza Eksperti", aiSub: "HiKorea va Adliya Vazirligining eng so'nggi qoidalari kiritilgan.",
+        scannerTitle: "AI Hujjatlarni Tekshirish Tizimi", scannerSub: "ID karta, TOPIK va shartnomani skanerlab viza talablarini tekshiring.",
+        jobsTitle: "E-7 Vizasi Uchun KSCO Ish O'rinlari", jobsSub: "E-7-1 vizasi beriladigan 87 ta KSCO kasb toifalari bo'yicha vakansiyalar.",
+        btnShowResult: "🎉 Tayyor! Yakuniy Viza Hisobotini Ko'rish",
+        printBtn: "PDF Yuklash", btnReset: "Qayta boshlash", btnEditAnswers: "Javoblarni tahrirlash",
+        reportCompleteTag: "Diagnostika yakunlandi.", lblPreset: "⚡ Tezkor shablon:",
+        chatBotName: "Boram Yordamchi 🐰", chatBotSub: "2026 Viza Baholash",
+        lblTargetVisa: "Maqsadli viza", lblDifficulty: "Qiyinchilik",
+        cardMatch: "Viza Mosligi", cardF27: "F-2-7 Taxminiy Ball", cardTopik: "TOPIK / KIIP", cardGni: "GNI Maosh Nisbati",
+        lblRadarTitle: "5 Asosiy Ko'rsatkich Bo'yicha Tahlil", lblMatrixTitle: "Viza Turlari Bo'yicha Moslik",
+        lblF27CalcTitle: "F-2-7 Ball Tizimi Kalkulyatori (2026)",
+        lblF27Age: "Yosh (Maks 25 ball)", lblF27Degree: "Ma'lumot (Maks 25 ball)", lblF27Topik: "Koreys tili (Maks 20 ball)", lblF27Income: "Daromad (Maks 60 ball)",
+        lblRoadmapTitle: "Bosqichma-bosqich Muvaffaqiyat Yo'li",
+        roadmapS1T: "0 ~ 3 Oy: Hujjat Tayyorlash",
+        roadmapS1D: "• TOPIK 5 darajasini saqlash yoki KIIP 5-bosqichiga yozilish.<br>• Kompaniyada kamida 5 nafar koreys xodim borligini tekshirish.",
+        roadmapS2T: "3 ~ 6 Oy: Viza O'zgartirishga Topshirish",
+        roadmapS2D: "• HiKorea onlayn navbat olish yoki immigratsiya idorasiga borish.<br>• Ishga olish sababi, diplom va kafolat xatini topshirish.",
+        roadmapS3T: "6 ~ 12 Oy: ARC Olish va Keyingi Bosqich",
+        roadmapS3D: "• Yangi ID kartani (ARC) topshirib olish.<br>• F-2-7 ga o'tish uchun daromad solig'i hujjatlarini tayyorlab borish.",
+        kpi1L: "2026 Talabalar Ish Bilan Ta'minlanishi", kpi1S: "O'tgan yilga nisbatan o'smoqda",
+        kpi2L: "E-7 Vizasiga O'tish Muvaffaqiyati", kpi2S: "STEM yo'nalishlari yetakchi",
+        kpi3L: "F-2-R Hududiy Joylashuv O'sishi", kpi3S: "Hokimiyat tavsiyasi bilan tez o'smoqda",
+        kpi4L: "O'rtacha Boshlang'ich Maosh", kpi4S: "GNI 80% darajasiga yaqin (~36M KRW)",
+        chart1Title: "Yo'nalishlar Bo'yicha Ishga Kirish Va Maosh", chart2Title: "Talabalarning Hududlar Bo'yicha Joylashuvi",
+        aiWelcome: "Salom! Men sizning viza va martaba bo'yicha AI konsultantingizman. Viza va hujjatlar haqida bemalol so'rashingiz mumkin!",
+        aiClearBtn: "Tozalash", aiSendBtn: "Yuborish",
+        scanDrop: "Faylni tanlang yoki shu yerga tashlang", scanSupport: "JPG, PNG, PDF fayllar (Namuna hujjatlar mavjud)",
+        scanResTitle: "AI Hujjat Tahlili Natijasi", scanPlace: "Chap tarafdan namuna hujjatni tanlab tekshiring.",
+        btnArc: "📑 ID Karta (ARC)", btnContract: "📝 Mehnat Shartnomasi", btnTopik: "🎓 TOPIK Sertifikati",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 Hozirgi ma\'lumotingiz va mutaxassisligingiz qanday?',
+            options: [
+              { label: 'STEM Muhandislik/IT (Magistr+)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM Muhandislik/IT (Bakalavr)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: 'Biznes/Gumanitar (Bakalavr/Magistr)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: 'Viloyat universiteti (F-2-R nomzodi)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ Koreys tili darajangiz (TOPIK / KIIP) qanday?',
+            options: [
+              { label: 'TOPIK 5~6 daraja / KIIP 5-bosqich', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK 3~4 daraja / KIIP 4-bosqich', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK 1~2 daraja / Yo\'q', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 Ish beruvchi taklif qilayotgan yillik maosh miqdori?',
+            options: [
+              { label: '38 mln KRW yuqori (GNI 100% bajarildi)', value: 'gni_100', gniPercent: 105 },
+              { label: '33 ~ 36 mln KRW (GNI 80% bajarildi)', value: 'gni_80', gniPercent: 92 },
+              { label: '30 mln KRW dan kam', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 Kompaniyada qancha koreys xodim ishlaydi?',
+            options: [
+              { label: '5 kishi yoki ko\'p (E-7 talabi bajarildi)', value: 'valid_company' },
+              { label: '5 kishidan kam (Alohida sabab ko\'rsatish kerak)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ["Ma'lumot", 'Koreys tili', 'Maosh darajasi', 'Mutaxassislik', 'Kompaniya'],
+        quickPrompts: ['F-2-7 da 80 ball to\'plash usullari', 'E-7 koreys xodimlar 20% kvotasi', 'D-10 reja xatini yozish', 'F-2-R hokimiyat tavsiyanomasi'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'E-7-1 Mumkin', title: 'AI / Backend Dasturchi', comp: 'Tech Innovation | Seul', salary: '38M ~ 45M KRW', req: 'IT / STEM Yo\'nalishi' },
+          { code: 'KSCO 2742', tag: 'E-7-1 Mumkin', title: 'Xalqaro Savdo Mutaxassisi', comp: 'Global Commerce | Pangyo', salary: '36M KRW (GNI 80%)', req: 'TOPIK 5+' },
+          { code: 'KSCO 2399', tag: 'F-2-R Bonusi', title: 'Smart Farm Tadqiqotchisi', comp: 'Green Bio | Iksan', salary: '33M KRW (Tavsiya bilan)', req: 'Qishloq xo\'jaligi' }
+        ]
+      },
+      mn: {
+        langName: "🇲🇳 Монгол",
+        title: "Гадаад Оюутны Карьер & Визний Туслах",
+        navDiag: "Виз Оншлогоо", navKosis: "KOSIS Статистик", navAi: "AI Зөвлөх", navScanner: "Бичиг Баримт Сканер", navJobs: "Ажлын Байр",
+        diagTitle: "Ухаалаг Интерактив Виз Оншлогооны Систем",
+        diagSub: "Aсуултуудад дараалан хариулж, 'Эцсийн үр дүн харах' товчийг дарж тайлангаа авна уу.",
+        kosisTitle: "KOSIS Үндэсний Статистик: Оюутнуудын Ажиллах ба Суурьших Мэдээлэл", kosisSub: "Үндэсний Статистикийн Хороо болон Хууль зүйн яамны нэгдсэн мэдээлэл.",
+        aiTitle: "2026 AI Цагаачлалын ба Визний Мэргэжилтэн", aiSub: "HiKorea болон Хууль зүйн яамны хамгийн сүүлийн үеийн дүрмийг тусгасан.",
+        scannerTitle: "AI Визний Бичиг Баримт Шалгах Симулятор", scannerSub: "Оригинал гадаад иргэний үнэмлэх, TOPIK болон гэрээг шалгана.",
+        jobsTitle: "E-7 Виз Олгох Боломжтой KSCO Ажлын Байр", jobsSub: "E-7-1 виз олгох боломжтой KSCO ангиллын ажлын байрны мэдээлэл.",
+        btnShowResult: "🎉 Хариулж дууслаа! Эцсийн Визний Тайлан Үзэх",
+        printBtn: "PDF Хэвлэх", btnReset: "Дахин эхлэх", btnEditAnswers: "Хариулт засах",
+        reportCompleteTag: "Оншлогоо дууслаа.", lblPreset: "⚡ Хурдан тохиргоо:",
+        chatBotName: "Визний Туслах Борам 🐰", chatBotSub: "2026 Визний Шалгуур",
+        lblTargetVisa: "Зорилтот виз", lblDifficulty: "Түвшин",
+        cardMatch: "Визний Тохироо", cardF27: "F-2-7 Таамагласан Оноо", cardTopik: "TOPIK / KIIP", cardGni: "GNI Цалингийн Харьцаа",
+        lblRadarTitle: "Үндсэн 5 Чадварын Радар Анализ", lblMatrixTitle: "Визний Төрөл Бүр Дээрх Боломж",
+        lblF27CalcTitle: "F-2-7 Онооны Системийн Тооцоолуур (2026 Стандарт)",
+        lblF27Age: "Нас (Макс 25 оноо)", lblF27Degree: "Боловсрол (Макс 25 оноо)", lblF27Topik: "Солонгос хэл (Макс 20 оноо)", lblF27Income: "Орлого (Макс 60 оноо)",
+        lblRoadmapTitle: "Алхам Алхмаар Амжилтанд Хүрэх Зам",
+        roadmapS1T: "0 ~ 3 Сар: Бичиг баримт бэлтгэх",
+        roadmapS1D: "• TOPIK 5-р түвшинг хадгалах эсвэл KIIP 5-р шатанд хамрагдах.<br>• Компанид хамгийн багадаа 5 солонгос ажилтан байгаа эсэхийг шалгах.",
+        roadmapS2T: "3 ~ 6 Сар: Виз өөрчлөх мэдүүлэг гаргах",
+        roadmapS2D: "• HiKorea-р дамжуулан цаг авах эсвэл Гадаадын иргэний албанд очих.<br>• Ажилд авах шалтгаан, диплом, баталгааны бичиг гаргаж өгөх.",
+        roadmapS3T: "6 ~ 12 Сар: Иргэний үнэмлэх авах ба дараагийн шат",
+        roadmapS3D: "• Шинэ Гадаад иргэний үнэмлэх (ARC) хүлээн авах.<br>• F-2-7 рүү шилжихийн тулд орлогын татварын тайланг бэлтгэх.",
+        kpi1L: "2026 Оюутнуудын Ажил Эрхлэлт", kpi1S: "Өмнөх оноос тогтмол өссөн",
+        kpi2L: "E-7 Визний Амжилттай Шилжилт", kpi2S: "STEM чиглэлийн оюутнууд тэргүүлж байна",
+        kpi3L: "F-2-R Орон Нутгийн Суурьшил", kpi3S: "Орон нутгийн тодорхойлолтоор огцом өссөн",
+        kpi4L: "Ажилд Орогсдын Дундаж Цалин", kpi4S: "GNI 80% стандартад ойртсон (~36 сая KRW)",
+        chart1Title: "Мэргэжил Бүрийн Ажилд Оролт ба Цалин", chart2Title: "Оюутнуудын Бүс Нутгийн Хуваарилалт",
+        aiWelcome: "Сайн байна уу! Би таны AI Визний зөвлөх байна. Визний шаардлага, бүрдүүлэх бичиг баримтын талаар асуугаарай!",
+        aiClearBtn: "Цэвэрлэх", aiSendBtn: "Илгээх",
+        scanDrop: "Файлаа сонгох эсвэл чирж оруулна уу", scanSupport: "JPG, PNG, PDF дэмжинэ (Жишээ файлууд бэлэн байна)",
+        scanResTitle: "AI Бичиг Баримт Шалгасан Үр Дүн", scanPlace: "Зүүн талын жишээ бичиг баримтаас сонгож туршина уу.",
+        btnArc: "📑 Гадаад иргэний үнэмлэх", btnContract: "📝 Хөдөлмөрийн гэрээ", btnTopik: "🎓 TOPIK Сертификат",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 Таны одоогийн боловсрол болон мэргэжлийн чиглэл юу вэ?',
+            options: [
+              { label: 'STEM Инженер/IT (Магистр+)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM Инженер/IT (Бакалавр)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: 'Бизнес/Хүмүүнлэг (Бакалавр/Магистр)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: 'Орон нутгийн сургууль (F-2-R нэр дэвшигч)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ Таны солонгос хэлний түвшин (TOPIK эсвэл KIIP) ямар вэ?',
+            options: [
+              { label: 'TOPIK 5~6 түвшин / KIIP 5-р шат', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK 3~4 түвшин / KIIP 4-р шат', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK 1~2 түвшин / Байхгүй', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 Ажилд авах компанийн санал болгож буй жилийн цалин?',
+            options: [
+              { label: '38 сая KRW-аас дээш (GNI 100% хангасан)', value: 'gni_100', gniPercent: 105 },
+              { label: '33 ~ 36 сая KRW (GNI 80% хангасан)', value: 'gni_80', gniPercent: 92 },
+              { label: '30 сая KRW-аас доош', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 Компанид ажиллаж буй солонгос ажилчдын тоо?',
+            options: [
+              { label: '5 ба түүнээс дээш (E-7 шаардлага хангасан)', value: 'valid_company' },
+              { label: '5-аас доош (Тусгай тайлбар шаардлагатай)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['Боловсрол', 'Солонгос хэл', 'Цалингийн түвшин', 'Мэргэжил', 'Компани'],
+        quickPrompts: ['F-2-7 дээр 80 оноо авах зөвлөгөө', 'E-7 солонгос ажилтны 20% квот', 'D-10 төлөвлөгөө бичих арга', 'F-2-R засаг даргаас тодорхойлолт авах'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'E-7-1 Боломжтой', title: 'AI / Backend Хөгжүүлэгч', comp: 'Tech Innovation | Сөүл', salary: '38M ~ 45M KRW', req: 'IT / STEM Мэргэжил' },
+          { code: 'KSCO 2742', tag: 'E-7-1 Боломжтой', title: 'Гадаад Худалдааны Мэргэжилтэн', comp: 'Global Commerce | Пангё', salary: '36M KRW (GNI 80%)', req: 'TOPIK 5-р түвшин' },
+          { code: 'KSCO 2399', tag: 'F-2-R Урамшуулал', title: 'Ухаалаг Фермийн Судлаач', comp: 'Green Bio | Иксан', salary: '33M KRW (Орон нутгийн)', req: 'Хөдөө аж ахуй / Био' }
+        ]
+      },
+      ja: {
+        langName: "🇯🇵 日本語",
+        title: "外国人留学生キャリア＆ビザメイト",
+        navDiag: "ビザ診断", navKosis: "KOSIS 統計", navAi: "AI コンサルタント", navScanner: "書類スキャナー", navJobs: "求人＆KSCO",
+        diagTitle: "スマートビザ対話型診断ツール",
+        diagSub: "質問に順にお答えいただき、「最終結果を確認」ボタンを押すと個別レポートが作成されます。",
+        kosisTitle: "KOSIS 国家統計に基づく留学生の定着・就職データ", kosisSub: "統計庁および法務部出入国外国人政策本部の統合データ。",
+        aiTitle: "2026 AI 出入国専門ビザコンサルタント", aiSub: "HiKorea の最新指針および法務部行政規則が反映されています。",
+        scannerTitle: "AI ビザ書類自動検証シミュレーター", scannerSub: "外国人登録証、TOPIK、雇用契約書をスキャンしてビザ資格を検証します。",
+        jobsTitle: "E-7 ビザ発給可能 KSCO 職種マッチング求人館", jobsSub: "E-7-1 専門職ビザが許可される 87 の KSCO 職種情報。",
+        btnShowResult: "🎉 回答完了！最終ビザ診断レポートを見る",
+        printBtn: "PDF 印刷", btnReset: "やり直す", btnEditAnswers: "回答を修正する",
+        reportCompleteTag: "診断が完了しました。", lblPreset: "⚡ プリセット:",
+        chatBotName: "ビザメイト ボラム 🐰", chatBotSub: "2026 出入国基準資格診断",
+        lblTargetVisa: "目標ビザ", lblDifficulty: "難易度",
+        cardMatch: "ビザ適合度", cardF27: "F-2-7 予想スコア", cardTopik: "TOPIK / KIIP", cardGni: "GNI 年収充足率",
+        lblRadarTitle: "5大能力多角レーダー分析", lblMatrixTitle: "主要ビザ別資格充足状況",
+        lblF27CalcTitle: "F-2-7 点数制ビザ計算機 (2026 基準)",
+        lblF27Age: "年齢 (最大25点)", lblF27Degree: "学歴 (最大25点)", lblF27Topik: "韓国語/KIIP (最大20点)", lblF27Income: "所得 (最大60点)",
+        lblRoadmapTitle: "段階別成功ロードマップ",
+        roadmapS1T: "0 ~ 3ヶ月: 書類準備および条件充足",
+        roadmapS1D: "• TOPIK 5級維持または KIIP 5段階の受講申請。<br>• 雇用企業の韓国人従業員数（最低5名）の確認。",
+        roadmapS2T: "3 ~ 6ヶ月: ビザ変更申請および審査",
+        roadmapS2D: "• HiKorea オンライン予約または出入国管理事務所の訪問。<br>• 雇用理由書、学位証明書、身元保証書などの提出。",
+        roadmapS3T: "6 ~ 12ヶ月: 外国人登録証の発給と次回昇格",
+        roadmapS3D: "• 新しい外国人登録証 (ARC) の受け取り。<br>• F-2-7 変更に向けた所得証明の管理。",
+        kpi1L: "2026 留学生の韓国就職率", kpi1S: "前年比で上昇傾向",
+        kpi2L: "E-7 ビザ変更成功率", kpi2S: "STEM・理工系が優勢",
+        kpi3L: "F-2-R 地域特化定着増加率", kpi3S: "自治体推薦制度で急増",
+        kpi4L: "大卒留学生の平均初任給", kpi4S: "GNI 80% 基準 (~3600万ウォン) に近接",
+        chart1Title: "専攻系列別の就職率および平均初任給", chart2Title: "地域別留学生の定着分布",
+        aiWelcome: "こんにちは！留学生キャリア＆ビザメイト AI コンサルタントです。ビザ要件や必要書類についてお気軽にご質問ください！",
+        aiClearBtn: "クリア", aiSendBtn: "送信",
+        scanDrop: "ファイルを選択またはドラッグ", scanSupport: "JPG, PNG, PDF 対応 (サンプル書類でテスト可能)",
+        scanResTitle: "AI 書類精密分析結果", scanPlace: "左側からテストするサンプル書類を選択してください。",
+        btnArc: "📑 外国人登録証", btnContract: "📝 雇用契約書", btnTopik: "🎓 TOPIK 成績証明書",
+        questions: [
+          {
+            id: 'degree',
+            text: '🎓 現在の学歴および最終専攻分野は何ですか？',
+            options: [
+              { label: 'STEM 工学/IT (修士以上)', value: 'stem_master', match: 92, f27: 85 },
+              { label: 'STEM 工学/IT (学士)', value: 'stem_bachelor', match: 88, f27: 78 },
+              { label: '経営/人文 (学士/修士)', value: 'biz_bachelor', match: 72, f27: 68 },
+              { label: '地方大学専攻 (F-2-R 対象)', value: 'regional_grad', match: 82, f27: 75 }
+            ]
+          },
+          {
+            id: 'topik',
+            text: '🗣️ 韓国語能力 (TOPIK または KIIP 社会統合プログラム) の段階は？',
+            options: [
+              { label: 'TOPIK 5~6級 / KIIP 5段階', value: 'high', scoreBonus: 20 },
+              { label: 'TOPIK 3~4급 / KIIP 4段階', value: 'mid', scoreBonus: 14 },
+              { label: 'TOPIK 1~2급 / 未保有', value: 'low', scoreBonus: 5 }
+            ]
+          },
+          {
+            id: 'income',
+            text: '💼 採用予定企業の提示年収 (所得) 水準は？',
+            options: [
+              { label: '3,800万ウォン以上 (GNI 100% 充足)', value: 'gni_100', gniPercent: 105 },
+              { label: '3,300万 ~ 3,600万ウォン (GNI 80%~ 充足)', value: 'gni_80', gniPercent: 92 },
+              { label: '3,000万ウォン未満', value: 'gni_low', gniPercent: 70 }
+            ]
+          },
+          {
+            id: 'company',
+            text: '🏢 採用企業内の韓国人従業員数は？',
+            options: [
+              { label: '5名以上 (E-7 条件充足)', value: 'valid_company' },
+              { label: '5名未満 (別途理由書が必要)', value: 'small_company' }
+            ]
+          }
+        ],
+        radarLabels: ['学歴水準', '韓国語(TOPIK)', '年収充足度', '専攻関連性', '企業資格'],
+        quickPrompts: ['F-2-7 80点達成のコツ', 'E-7 韓国人雇用20%ルール', 'D-10 求職計画書の書き方', 'F-2-R 自治体推薦ノウハウ'],
+        jobs: [
+          { code: 'KSCO 2221', tag: 'E-7-1 可能', title: 'AI/フルスタック開発者', comp: 'Tech Innovation | ソウル', salary: '3,800万 ~ 4,500万ウォン', req: 'コンピュータ工学/STEM' },
+          { code: 'KSCO 2742', tag: 'E-7-1 可能', title: 'グローバル海外営業担当', comp: 'Global Commerce | 板橋', salary: '3,600万ウォン (GNI 80% 充足)', req: 'TOPIK 5級以上' },
+          { code: 'KSCO 2399', tag: 'F-2-R 加点', title: 'スマートファーム研究員', comp: 'Green Bio | 全北益山', salary: '3,300万ウォン (自治体推薦)', req: '農学/バイオ専攻' }
+        ]
+      }
+    };
+
+    // Global Language Selector & UI Functions
+    function selectLanguage(lang) {
+      currentLang = lang;
+      const dict = i18n[lang] || i18n['ko'];
+
+      document.getElementById('current-lang-text').innerText = dict.langName;
+      document.getElementById('i18n-title').innerText = dict.title;
+      document.getElementById('nav-diag').innerText = dict.navDiag;
+      document.getElementById('nav-kosis').innerText = dict.navKosis;
+      document.getElementById('nav-ai').innerText = dict.navAi;
+      document.getElementById('nav-scanner').innerText = dict.navScanner;
+      document.getElementById('nav-jobs').innerText = dict.navJobs;
+      document.getElementById('btn-print').innerText = dict.printBtn;
+
+      document.getElementById('diag-title').childNodes[2].nodeValue = " " + dict.diagTitle;
+      document.getElementById('diag-subtitle').innerText = dict.diagSub;
+      document.getElementById('kosis-title').childNodes[2].nodeValue = " " + dict.kosisTitle;
+      document.getElementById('kosis-sub').innerText = dict.kosisSub;
+      document.getElementById('ai-title').childNodes[2].nodeValue = " " + dict.aiTitle;
+      document.getElementById('ai-sub').innerText = dict.aiSub;
+      document.getElementById('scanner-title').childNodes[2].nodeValue = " " + dict.scannerTitle;
+      document.getElementById('scanner-sub').innerText = dict.scannerSub;
+      document.getElementById('jobs-title').childNodes[2].nodeValue = " " + dict.jobsTitle;
+      document.getElementById('jobs-sub').innerText = dict.jobsSub;
+
+      document.getElementById('label-preset').innerText = dict.lblPreset;
+      document.getElementById('chat-bot-name').innerText = dict.chatBotName;
+      document.getElementById('chat-bot-sub').childNodes[2].nodeValue = " " + dict.chatBotSub;
+      document.getElementById('btn-reset').childNodes[2].nodeValue = " " + dict.btnReset;
+      document.getElementById('btn-show-result').innerText = dict.btnShowResult;
+      document.getElementById('report-complete-tag').childNodes[2].nodeValue = " " + dict.reportCompleteTag;
+      document.getElementById('btn-edit-answers').childNodes[2].nodeValue = " " + dict.btnEditAnswers;
+
+      document.getElementById('lbl-target-visa').innerText = dict.lblTargetVisa;
+      document.getElementById('lbl-difficulty').innerText = dict.lblDifficulty;
+      document.getElementById('card-lbl-match').innerText = dict.cardMatch;
+      document.getElementById('card-lbl-f27').innerText = dict.cardF27;
+      document.getElementById('card-lbl-topik').innerText = dict.cardTopik;
+      document.getElementById('card-lbl-gni').innerText = dict.cardGni;
+      document.getElementById('lbl-radar-title').childNodes[2].nodeValue = " " + dict.lblRadarTitle;
+      document.getElementById('lbl-matrix-title').childNodes[2].nodeValue = " " + dict.lblMatrixTitle;
+      document.getElementById('lbl-f27-calc-title').childNodes[2].nodeValue = " " + dict.lblF27CalcTitle;
+      document.getElementById('lbl-f27-age').innerText = dict.lblF27Age;
+      document.getElementById('lbl-f27-degree').innerText = dict.lblF27Degree;
+      document.getElementById('lbl-f27-topik').innerText = dict.lblF27Topik;
+      document.getElementById('lbl-f27-income').innerText = dict.lblF27Income;
+      document.getElementById('lbl-roadmap-title').childNodes[2].nodeValue = " " + dict.lblRoadmapTitle;
+
+      document.getElementById('roadmap-step1-title').innerText = dict.roadmapS1T;
+      document.getElementById('roadmap-step1-desc').innerHTML = dict.roadmapS1D;
+      document.getElementById('roadmap-step2-title').innerText = dict.roadmapS2T;
+      document.getElementById('roadmap-step2-desc').innerHTML = dict.roadmapS2D;
+      document.getElementById('roadmap-step3-title').innerText = dict.roadmapS3T;
+      document.getElementById('roadmap-step3-desc').innerHTML = dict.roadmapS3D;
+
+      document.getElementById('kpi1-lbl').innerText = dict.kpi1L; document.getElementById('kpi1-sub').innerText = dict.kpi1S;
+      document.getElementById('kpi2-lbl').innerText = dict.kpi2L; document.getElementById('kpi2-sub').innerText = dict.kpi2S;
+      document.getElementById('kpi3-lbl').innerText = dict.kpi3L; document.getElementById('kpi3-sub').innerText = dict.kpi3S;
+      document.getElementById('kpi4-lbl').innerText = dict.kpi4L; document.getElementById('kpi4-sub').innerText = dict.kpi4S;
+      document.getElementById('lbl-chart1-title').childNodes[2].nodeValue = " " + dict.chart1Title;
+      document.getElementById('lbl-chart2-title').childNodes[2].nodeValue = " " + dict.chart2Title;
+
+      document.getElementById('ai-welcome-msg').innerText = dict.aiWelcome;
+      document.getElementById('btn-ai-clear').innerText = dict.aiClearBtn;
+      document.getElementById('btn-ai-send').querySelector('span').innerText = dict.aiSendBtn;
+      renderAiQuickPrompts();
+
+      document.getElementById('lbl-scan-drop').innerText = dict.scanDrop;
+      document.getElementById('lbl-scan-support').innerText = dict.scanSupport;
+      document.getElementById('lbl-scan-res-title').childNodes[2].nodeValue = " " + dict.scanResTitle;
+      document.getElementById('lbl-scan-placeholder').innerText = dict.scanPlace;
+      document.getElementById('btn-scan-arc').innerText = dict.btnArc;
+      document.getElementById('btn-scan-contract').innerText = dict.btnContract;
+      document.getElementById('btn-scan-topik').innerText = dict.btnTopik;
+
+      renderJobsHall();
+      initDiagnosisChat();
+
+      document.getElementById('lang-modal').classList.add('hidden');
+    }
+
+    function openLangModal() {
+      document.getElementById('lang-modal').classList.remove('hidden');
+    }
+
+    function initDiagnosisChat() {
+      currentStep = 0;
+      userAnswers = {};
+      const chatBody = document.getElementById('chat-body');
+      if (chatBody) chatBody.innerHTML = '';
+      document.getElementById('diag-question-view').classList.remove('hidden');
+      document.getElementById('diag-report-view').classList.add('hidden');
+      document.getElementById('final-result-trigger').classList.add('hidden');
+      
+      renderStepQuestion();
+    }
+
+    function renderStepQuestion() {
+      const qList = i18n[currentLang].questions;
+
+      if (currentStep >= qList.length) {
+        document.getElementById('chat-options').innerHTML = '';
+        document.getElementById('final-result-trigger').classList.remove('hidden');
+        appendBotMessage("🎉 " + i18n[currentLang].btnShowResult);
+        return;
+      }
+
+      const q = qList[currentStep];
+      appendBotMessage(q.text);
+
+      const optContainer = document.getElementById('chat-options');
+      optContainer.innerHTML = '';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "px-3.5 py-2 bg-pink-50 hover:bg-pinkDeep hover:text-white border border-pink-200 text-darkSlate rounded-xl text-xs font-bold transition shadow-sm text-left";
+        btn.innerText = opt.label;
+        btn.onclick = () => handleAnswer(q.id, opt);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(questionId, option) {
+      userAnswers[questionId] = option;
+      appendUserMessage(option.label);
+
+      currentStep++;
+      setTimeout(() => {
+        renderStepQuestion();
+      }, 350);
+    }
+
+    function appendBotMessage(msg) {
+      const chatBody = document.getElementById('chat-body');
+      if (!chatBody) return;
+      const div = document.createElement('div');
+      div.className = "flex items-start gap-2.5 my-2 animate-fadeIn";
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-pinkDeep text-white flex items-center justify-center text-xs font-bold shrink-0">🐰</div>
+        <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-pink-100 shadow-sm max-w-[85%] text-xs text-gray-800 font-medium">
+          ${msg}
+        </div>
+      `;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function appendUserMessage(msg) {
+      const chatBody = document.getElementById('chat-body');
+      if (!chatBody) return;
+      const div = document.createElement('div');
+      div.className = "flex items-end justify-end gap-2.5 my-2";
+      div.innerHTML = `
+        <div class="bg-yellow-300 text-darkSlate p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-xs font-bold">
+          ${msg}
+        </div>
+      `;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function resetChat() {
+      initDiagnosisChat();
+    }
+
+    function showFinalReportView() {
+      document.getElementById('diag-question-view').classList.add('hidden');
+      document.getElementById('diag-report-view').classList.remove('hidden');
+
+      updateReportDetails();
+      initRadarChart();
+    }
+
+    function backToQuestions() {
+      document.getElementById('diag-report-view').classList.add('hidden');
+      document.getElementById('diag-question-view').classList.remove('hidden');
+    }
+
+    function updateReportDetails() {
+      const qList = i18n[currentLang].questions;
+      const degOpt = userAnswers['degree'] || qList[0].options[0];
+      const topikOpt = userAnswers['topik'] || qList[1].options[0];
+      const incOpt = userAnswers['income'] || qList[2].options[0];
+
+      let matchScore = degOpt.match || 88;
+      let f27Score = (degOpt.f27 || 70) + (topikOpt.scoreBonus || 15);
+      let gniVal = incOpt.gniPercent || 100;
+
+      document.getElementById('score-match').innerText = `${matchScore}%`;
+      document.getElementById('score-f27').innerText = `${f27Score} / 80`;
+      document.getElementById('score-gni').innerText = `${gniVal}%`;
+      document.getElementById('f27-total-badge').innerText = `TOTAL: f27ScorePts({f27Score >= 80 ? 'PASS 🎉' : 'Needs +2 Pts'})`;
+
+      const mascotBox = document.getElementById('mascot-svg-container');
+      mascotBox.innerHTML = `
+        <svg class="w-20 h-20 text-pinkDeep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" fill="#FFF0F3" />
+          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke-linecap="round" />
+          <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" stroke-linecap="round" />
+          <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round" />
+        </svg>
+      `;
+
+      const matrixList = document.getElementById('visa-matrix-list');
+      matrixList.innerHTML = `
+        <div class="flex items-center justify-between p-2.5 bg-pink-50 rounded-xl">
+          <span class="font-bold">E-7-1 Professional Visa</span>
+          <span class="px-2 py-0.5 bg-green-100 text-green-700 font-extrabold rounded-lg">High Potential</span>
+        </div>
+        <div class="flex items-center justify-between p-2.5 bg-purple-50 rounded-xl">
+          <span class="font-bold">F-2-7 Points Residency</span>
+          <span class="px-2 py-0.5 ${f27Score >= 80 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'} font-extrabold rounded-lg">
+            ${f27Score >= 80 ? 'Eligible (80+)' : 'Needs +2~5 Pts'}
+          </span>
+        </div>
+        <div class="flex items-center justify-between p-2.5 bg-blue-50 rounded-xl">
+          <span class="font-bold">F-2-R Regional Visa</span>
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-700 font-extrabold rounded-lg">Local Rec. Ready</span>
+        </div>
+      `;
+    }
+
+    function loadPreset(type) {
+      const qList = i18n[currentLang].questions;
+      if (type === 'stem') {
+        userAnswers = { degree: qList[0].options[0], topik: qList[1].options[0], income: qList[2].options[0], company: qList[3].options[0] };
+      } else if (type === 'business') {
+        userAnswers = { degree: qList[0].options[2], topik: qList[1].options[1], income: qList[2].options[1], company: qList[3].options[0] };
+      } else {
+        userAnswers = { degree: qList[0].options[3], topik: qList[1].options[0], income: qList[2].options[1], company: qList[3].options[0] };
+      }
+      showFinalReportView();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.classList.remove('bg-gradient-to-r', 'from-pinkDeep', 'to-pinkAccent', 'text-white', 'shadow-md');
+        el.classList.add('text-mutedSlate');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-gradient-to-r', 'from-pinkDeep', 'to-pinkAccent', 'text-white', 'shadow-md');
+        activeBtn.classList.remove('text-mutedSlate');
+      }
+
+      if (tabId === 'tab-kosis') {
+        initKosisCharts();
+      }
+    }
+
+    function initRadarChart() {
+      const ctx = document.getElementById('competencyRadarChart');
+      if (!ctx) return;
+
+      if (radarChartInstance) radarChartInstance.destroy();
+
+      const labels = i18n[currentLang].radarLabels;
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Competency Score',
+            data: [90, 85, 80, 95, 90],
+            backgroundColor: 'rgba(255, 71, 126, 0.25)',
+            borderColor: '#FF477E',
+            borderWidth: 2,
+            pointBackgroundColor: '#FF477E'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: { min: 0, max: 100, ticks: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function initKosisCharts() {
+      const ctx1 = document.getElementById('kosisMajorChart');
+      if (ctx1 && !kosisMajorChartInstance) {
+        kosisMajorChartInstance = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: ['STEM', 'Business', 'Humanities', 'Arts/Other'],
+            datasets: [
+              { label: 'Employment Rate (%)', data: [78.5, 64.2, 52.1, 45.0], backgroundColor: '#FF477E' },
+              { label: 'Avg Salary (M KRW)', data: [38.5, 34.0, 31.5, 29.0], backgroundColor: '#8B5CF6' }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+        });
+      }
+
+      const ctx2 = document.getElementById('kosisRegionChart');
+      if (ctx2 && !kosisRegionChartInstance) {
+        kosisRegionChartInstance = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: ['Capital Area (Seoul/Gyeonggi)', 'F-2-R Designated Regional Cities', 'Other Metro Areas'],
+            datasets: [{ data: [58, 27, 15], backgroundColor: ['#FF477E', '#10B981', '#3B82F6'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+    }
+
+    function updateKosisCharts() {
+      if (kosisMajorChartInstance) {
+        kosisMajorChartInstance.data.datasets[0].data = [82.1, 61.5, 49.8, 42.0];
+        kosisMajorChartInstance.update();
+      }
+    }
+
+    function renderAiQuickPrompts() {
+      const box = document.getElementById('ai-quick-prompts');
+      if (!box) return;
+      const prompts = i18n[currentLang].quickPrompts;
+      box.innerHTML = `<span class="font-bold text-pinkDeep shrink-0">💡 Quick:</span>`;
+      prompts.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = "px-3 py-1 bg-white hover:bg-pink-100 text-gray-700 rounded-full border border-pink-200 shrink-0 transition text-xs font-medium";
+        btn.innerText = p;
+        btn.onclick = () => {
+          document.getElementById('ai-user-input').value = p;
+          sendAiMessage();
+        };
+        box.appendChild(btn);
+      });
+    }
+
+    function sendAiMessage() {
+      const input = document.getElementById('ai-user-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const body = document.getElementById('ai-chat-body');
+      
+      const uDiv = document.createElement('div');
+      uDiv.className = "flex justify-end my-2";
+      uDiv.innerHTML = `<div class="bg-pinkDeep text-white p-3 rounded-2xl rounded-tr-none max-w-[80%]">${text}</div>`;
+      body.appendChild(uDiv);
+
+      input.value = '';
+      body.scrollTop = body.scrollHeight;
+
+      setTimeout(() => {
+        const bDiv = document.createElement('div');
+        bDiv.className = "flex items-start gap-3 my-2";
+        bDiv.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-pinkDeep text-white flex items-center justify-center font-bold shrink-0">AI</div>
+          <div class="bg-white p-3.5 rounded-2xl border border-pink-100 shadow-sm max-w-[85%] text-gray-800 leading-relaxed">
+            [AI Response - 2026 Standards]<br>
+            Regarding <strong>"${text}"</strong>:<br>
+            • <strong>E-7-1 Rule:</strong> Employers must maintain at least 5 local Korean staff.<br>
+            • <strong>F-2-7 Points:</strong> You need 80 points minimum. KIIP Stage 5 completion grants +10 bonus points!
+          </div>
+        `;
+        body.appendChild(bDiv);
+        body.scrollTop = body.scrollHeight;
+      }, 600);
+    }
+
+    function clearAiChat() {
+      document.getElementById('ai-chat-body').innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-pinkDeep text-white flex items-center justify-center font-bold shrink-0">AI</div>
+          <div class="bg-white p-3.5 rounded-2xl border border-pink-100 shadow-sm max-w-[85%] text-gray-800 leading-relaxed">
+            ${i18n[currentLang].aiWelcome}
+          </div>
+        </div>
+      `;
+    }
+
+    function runSampleScan(type) {
+      const laser = document.getElementById('scanner-laser');
+      const resultBox = document.getElementById('scan-result-box');
+
+      laser.classList.remove('hidden');
+      resultBox.innerHTML = `<div class="p-4 text-center text-pinkDeep font-bold animate-pulse">Scanning document authentication & details...</div>`;
+
+      setTimeout(() => {
+        laser.classList.add('hidden');
+
+        if (type === 'arc') {
+          resultBox.innerHTML = `
+            <div class="p-3 bg-green-50 border border-green-200 rounded-xl space-y-1">
+              <p class="font-bold text-green-800">✅ Alien Registration Card (ARC) Validated</p>
+              <p>• Status: D-2-6 (Student)</p>
+              <p>• Expiry Date: 2026-08-31 (Valid)</p>
+              <p>• Authenticity: Verified</p>
+            </div>
+          `;
+        } else if (type === 'contract') {
+          resultBox.innerHTML = `
+            <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl space-y-1">
+              <p class="font-bold text-purple-800">✅ Employment Contract Validated</p>
+              <p>• Offered Salary: 36,500,000 KRW (Meets 80% GNI threshold)</p>
+              <p>• Job Code: KSCO 2221 (Software Developer)</p>
+              <p>• E-7 Eligibility: High</p>
+            </div>
+          `;
+        } else {
+          resultBox.innerHTML = `
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
+              <p class="font-bold text-blue-800">✅ TOPIK Scorecard Validated</p>
+              <p>• Level Obtained: TOPIK Level 5</p>
+              <p>• Issuer: NIIED (Verified)</p>
+              <p>• F-2-7 Points: +18 Bonus Points</p>
+            </div>
+          `;
+        }
+      }, 1400);
+    }
+
+    function renderJobsHall() {
+      const container = document.getElementById('job-cards-container');
+      if (!container) return;
+      const jobs = i18n[currentLang].jobs;
+      container.innerHTML = '';
+
+      jobs.forEach(j => {
+        const div = document.createElement('div');
+        div.className = "glass-card p-5 rounded-3xl border border-pink-200 shadow-sm space-y-3 hover:shadow-md transition";
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="px-2.5 py-1 bg-pink-100 text-pinkDeep font-bold rounded-lg text-[10px]">${j.code}</span>
+            <span class="text-xs font-extrabold text-green-600">${j.tag}</span>
+          </div>
+          <h3 class="font-bold text-sm text-darkSlate">${j.title}</h3>
+          <p class="text-xs text-mutedSlate">${j.comp}</p>
+          <div class="text-xs space-y-1 bg-pink-50/60 p-2.5 rounded-xl border border-pink-100">
+            <p><strong>Salary:</strong> ${j.salary}</p>
+            <p><strong>Requirement:</strong> ${j.req}</p>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function triggerPrintReport() {
+      showFinalReportView();
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar & Print Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FFF0F3;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FF6B8B;
+      border-radius: 9999px;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 182, 193, 0.4);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 227, 232, 0.8);
+    }
+    .scanner-line {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #FF477E, transparent);
+      box-shadow: 0 0 10px #FF477E;
+      animation: scan 2s linear infinite;
+    }
+    @keyframes scan {
+      0% { top: 0%; }
+      50% { top: 95%; }
+      100% { top: 0%; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-report, #printable-report * {
+        visibility: visible;
+      }
+      #printable-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-[#FFF0F3] via-[#FFE3E8] to-[#FFF5F7] text-darkSlate min-h-screen font-sans flex flex-col antialiased selection:bg-pinkAccent selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- 1. LANGUAGE SELECTION MODAL (FIRST LANDING) -->
+  <!-- ========================================== -->
+  <div id="lang-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+    <div class="glass-card max-w-xl w-full p-6 md:p-8 rounded-3xl shadow-2xl border-2 border-pink-300 text-center space-y-6">
+      
+      <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-pinkDeep to-pinkAccent flex items-center justify-center text-white shadow-xl shadow-pink-500/30 animate-float">
+        <i data-lucide="globe" class="w-8 h-8"></i>
+      </div>
+
+      <div class="space-y-2">
+        <h2 class="text-2xl font-extrabold bg-gradient-to-r from-pinkDeep to-purple-600 bg-clip-text text-transparent">
+          Welcome / 환영합니다!
+        </h2>
+        <p class="text-xs md:text-sm text-mutedSlate">
+          사용하실 언어를 선택해 주세요. 모든 메뉴와 질문, 결과서가 선택한 언어로 변경됩니다.<br>
+          Please select your preferred language to proceed.
+        </p>
+      </div>
+
+      <!-- Top 7 Languages Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs md:text-sm font-bold">
+        <button onclick="selectLanguage('ko')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇰🇷</span> 한국어
+        </button>
+        <button onclick="selectLanguage('zh')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇨🇳</span> 中文 (Chinese)
+        </button>
+        <button onclick="selectLanguage('vi')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇻🇳</span> Tiếng Việt
+        </button>
+        <button onclick="selectLanguage('en')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇺🇸</span> English
+        </button>
+        <button onclick="selectLanguage('uz')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇺🇿</span> O'zbekcha
+        </button>
+        <button onclick="selectLanguage('mn')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm flex items-center justify-center gap-2">
+          <span>🇲🇳</span> Монгол
+        </button>
+        <button onclick="selectLanguage('ja')" class="p-3 bg-white hover:bg-pink-50 border-2 border-pink-200 hover:border-pinkDeep text-darkSlate rounded-2xl transition shadow-sm col-span-2 sm:col-span-1 flex items-center justify-center gap-2">
+          <span>🇯🇵</span> 日本語
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOP HEADER & NAVBAR -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-pink-200/50 px-4 lg:px-8 py-3 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- Logo & Team Credits -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pinkDeep to-pinkAccent flex items-center justify-center text-white shadow-lg shadow-pink-500/30 shrink-0">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="i18n-title" class="text-lg lg:text-xl font-bold bg-gradient-to-r from-pinkDeep to-purple-600 bg-clip-text text-transparent">
+              외국인 유학생 커리어 & 비자 메이트
+            </h1>
+            <span class="px-2 py-0.5 text-xs font-bold bg-pink-100 text-pinkDeep rounded-full border border-pink-300 shrink-0">2026</span>
+          </div>
+          <p class="text-xs text-mutedSlate">
+            <span class="font-semibold text-pinkDeep">팀 최강 김유빈</span> (최예서 · 강지원 · 김유빈)
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-wrap items-center justify-center gap-1 bg-white/70 p-1.5 rounded-2xl border border-pink-200/60 shadow-inner text-xs md:text-sm font-medium">
+        <button onclick="switchTab('tab-diagnosis')" id="btn-tab-diagnosis" class="nav-tab px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 bg-gradient-to-r from-pinkDeep to-pinkAccent text-white shadow-md">
+          <i data-lucide="message-square-heart" class="w-4 h-4"></i>
+          <span id="nav-diag">비자 진단</span>
+        </button>
+        <button onclick="switchTab('tab-kosis')" id="btn-tab-kosis" class="nav-tab px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-mutedSlate hover:text-pinkDeep hover:bg-pink-50">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span id="nav-kosis">KOSIS 통계</span>
+        </button>
+        <button onclick="switchTab('tab-ai-consultant')" id="btn-tab-ai-consultant" class="nav-tab px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-mutedSlate hover:text-pinkDeep hover:bg-pink-50">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+          <span id="nav-ai">AI 컨설턴트</span>
+        </button>
+        <button onclick="switchTab('tab-scanner')" id="btn-tab-scanner" class="nav-tab px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-mutedSlate hover:text-pinkDeep hover:bg-pink-50">
+          <i data-lucide="file-search" class="w-4 h-4"></i>
+          <span id="nav-scanner">서류 스캐너</span>
+        </button>
+        <button onclick="switchTab('tab-jobs')" id="btn-tab-jobs" class="nav-tab px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-mutedSlate hover:text-pinkDeep hover:bg-pink-50">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>
+          <span id="nav-jobs">채용 & KSCO</span>
+        </button>
+      </nav>
+
+      <!-- Language Selector & Print Controls -->
+      <div class="flex items-center gap-2">
+        <button onclick="openLangModal()" class="px-3 py-1.5 bg-white border border-pink-300 text-pinkDeep rounded-xl text-xs font-semibold hover:bg-pink-50 flex items-center gap-1 transition shadow-sm">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+          <span id="current-lang-text">🇰🇷 한국어</span>
+        </button>
+        <button onclick="triggerPrintReport()" class="px-3 py-1.5 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl text-xs font-semibold hover:bg-black flex items-center gap-1 transition shadow-md">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span id="btn-print">PDF 출력</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 space-y-8">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: DIAGNOSIS & DEEP REPORT             -->
+    <!-- ========================================== -->
+    <section id="tab-diagnosis" class="tab-content space-y-8">
+
+      <!-- Header Banner -->
+      <div class="glass-panel p-5 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 border border-pink-200">
+        <div>
+          <h2 id="diag-title" class="text-xl font-bold text-darkSlate flex items-center gap-2">
+            <span class="p-2 bg-pink-100 rounded-2xl text-pinkDeep"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
+            스마트 비자 대화형 진단기
+          </h2>
+          <p id="diag-subtitle" class="text-xs text-mutedSlate mt-1">질문에 차례대로 답변한 후 '최종 결과 확인' 버튼을 누르면 맞춤형 비자 승인 리포트가 생성됩니다.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="label-preset" class="text-xs font-bold text-pinkDeep">⚡ 빠른 프리셋:</span>
+          <button onclick="loadPreset('stem')" class="px-3 py-1.5 bg-white text-xs font-bold text-gray-700 rounded-xl border border-pink-200 hover:bg-pink-50 hover:border-pinkDeep transition shadow-sm">
+            💻 STEM
+          </button>
+          <button onclick="loadPreset('business')" class="px-3 py-1.5 bg-white text-xs font-bold text-gray-700 rounded-xl border border-pink-200 hover:bg-pink-50 hover:border-pinkDeep transition shadow-sm">
+            💼 BIZ
+          </button>
+          <button onclick="loadPreset('regional')" class="px-3 py-1.5 bg-white text-xs font-bold text-gray-700 rounded-xl border border-pink-200 hover:bg-pink-50 hover:border-pinkDeep transition shadow-sm">
+            🏞️ F-2-R
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: DIAGNOSIS QUESTIONNAIRE VIEW -->
+      <div id="diag-question-view" class="max-w-2xl mx-auto bg-[#BACEE0] rounded-3xl p-4 shadow-2xl border-4 border-white flex flex-col h-[580px] relative overflow-hidden">
+        
+        <!-- Chat Bar Top -->
+        <div class="bg-[#A0B4C6]/80 backdrop-blur-md p-3 rounded-2xl flex items-center justify-between mb-3 text-darkSlate">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-pinkDeep text-white flex items-center justify-center font-bold shadow">
+              <i data-lucide="bot" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 id="chat-bot-name" class="text-sm font-bold">비자메이트 보람이 🐰</h3>
+              <p id="chat-bot-sub" class="text-[10px] text-gray-700 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span> 2026 출입국 기준 자격 진단
+              </p>
+            </div>
+          </div>
+          <button onclick="resetChat()" id="btn-reset" class="text-xs px-2.5 py-1 bg-white/70 hover:bg-white rounded-lg font-medium text-gray-700 transition flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 다시 하기
+          </button>
+        </div>
+
+        <!-- Scrollable Messages Area -->
+        <div id="chat-body" class="flex-grow overflow-y-auto space-y-3 p-1 pr-2">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Option Selection Buttons -->
+        <div id="chat-input-container" class="mt-2 bg-white rounded-2xl p-3 shadow-md border border-pink-100 flex flex-col gap-2">
+          <div id="chat-options" class="flex flex-wrap gap-2 justify-center">
+            <!-- Dynamic choices -->
+          </div>
+        </div>
+
+        <!-- Final Result Trigger Overlay (Appears when all questions are answered) -->
+        <div id="final-result-trigger" class="hidden absolute bottom-4 left-4 right-4 p-2 bg-gradient-to-r from-pinkDeep to-purple-600 rounded-2xl text-center shadow-2xl z-20">
+          <button onclick="showFinalReportView()" class="w-full py-3 text-white font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-95 transition animate-pulse">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span id="btn-show-result">🎉 모든 답변 완료! 최종 비자 진단 결과서 보기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: FINAL DIAGNOSIS REPORT VIEW -->
+      <div id="diag-report-view" class="hidden space-y-6">
+        
+        <div class="flex justify-between items-center bg-white/80 p-4 rounded-2xl border border-pink-200">
+          <span id="report-complete-tag" class="text-xs font-bold text-pinkDeep flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i> 진단이 완료되었습니다.
+          </span>
+          <button onclick="backToQuestions()" id="btn-edit-answers" class="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold rounded-xl text-gray-700 transition flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> 답변 수정하기
+          </button>
+        </div>
+
+        <div id="printable-report" class="space-y-6">
+          
+          <!-- Mascot / Status Header Card -->
+          <div class="glass-card p-6 rounded-3xl border-2 border-pink-200/80 shadow-xl relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 bg-gradient-to-r from-white via-pink-50/50 to-white">
+            <div class="relative shrink-0">
+              <div id="mascot-svg-container" class="w-28 h-28 flex items-center justify-center bg-pink-100/80 rounded-3xl p-2 border-2 border-pink-300 shadow-inner animate-float text-pinkDeep">
+                <!-- Mascot SVG -->
+              </div>
+              <span id="mascot-badge" class="absolute -bottom-2 -right-2 px-2.5 py-0.5 text-[10px] font-black bg-pinkDeep text-white rounded-full shadow">
+                E-7-1
+              </span>
+            </div>
+
+            <div class="flex-grow text-center sm:text-left space-y-2">
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h3 id="mascot-name" class="text-xl font-bold text-darkSlate">토비 🐰</h3>
+                <span id="status-rank" class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-300">
+                  매우 안정적 (Tier 1)
+                </span>
+              </div>
+              <p id="mascot-quote" class="text-xs text-mutedSlate italic bg-white/80 p-2.5 rounded-xl border border-pink-100 shadow-sm">
+                "STEM 전공에 TOPIK 5급 보유! E-7-1 전문직 비자 승인 가능성이 매우 높아!"
+              </p>
+              <div class="flex flex-wrap gap-3 text-xs pt-1 justify-center sm:justify-start">
+                <span class="font-bold text-gray-600"><span id="lbl-target-visa">목표 비자</span>: <strong id="rep-target-visa" class="text-pinkDeep">E-7-1</strong></span>
+                <span class="font-bold text-gray-600"><span id="lbl-difficulty">난이도</span>: <strong id="rep-difficulty" class="text-blue-600">보통 (Medium)</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Executive Summary Scores Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-pinkDeep">
+              <p id="card-lbl-match" class="text-[11px] text-mutedSlate font-semibold">비자 적합도</p>
+              <p id="score-match" class="text-2xl font-extrabold text-pinkDeep mt-1">88%</p>
+            </div>
+            <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-purple-500">
+              <p id="card-lbl-f27" class="text-[11px] text-mutedSlate font-semibold">F-2-7 예상 점수</p>
+              <p id="score-f27" class="text-2xl font-extrabold text-purple-600 mt-1">78 / 80</p>
+            </div>
+            <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-blue-500">
+              <p id="card-lbl-topik" class="text-[11px] text-mutedSlate font-semibold">TOPIK / KIIP</p>
+              <p id="score-topik" class="text-2xl font-extrabold text-blue-600 mt-1">5급 / 4단계</p>
+            </div>
+            <div class="glass-card p-4 rounded-2xl text-center border-b-4 border-emerald-500">
+              <p id="card-lbl-gni" class="text-[11px] text-mutedSlate font-semibold">GNI 연봉 충족율</p>
+              <p id="score-gni" class="text-2xl font-extrabold text-emerald-600 mt-1">105%</p>
+            </div>
+          </div>
+
+          <!-- Radar Chart & Visa Matrix Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Radar Chart -->
+            <div class="glass-card p-4 rounded-3xl shadow-md border border-pink-100 flex flex-col justify-between">
+              <h4 id="lbl-radar-title" class="text-xs font-bold text-darkSlate flex items-center gap-1.5 mb-2">
+                <i data-lucide="radar" class="w-4 h-4 text-pinkDeep"></i> 5대 역량 다각도 레이더 분석
+              </h4>
+              <div class="relative w-full h-52 flex items-center justify-center">
+                <canvas id="competencyRadarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Visa Eligibility Matrix -->
+            <div class="glass-card p-4 rounded-3xl shadow-md border border-pink-100 space-y-2">
+              <h4 id="lbl-matrix-title" class="text-xs font-bold text-darkSlate flex items-center gap-1.5 mb-2">
+                <i data-lucide="layers" class="w-4 h-4 text-pinkDeep"></i> 주요 비자별 자격 충족 여부
+              </h4>
+              <div id="visa-matrix-list" class="space-y-2 text-xs">
+                <!-- Dynamically filled -->
+              </div>
+            </div>
+          </div>
+
+          <!-- F-2-7 Point Breakdown Calculator -->
+          <div class="glass-card p-5 rounded-3xl shadow-md border border-pink-200/80 space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h4 id="lbl-f27-calc-title" class="text-sm font-bold text-darkSlate flex items-center gap-2">
+                <i data-lucide="calculator" class="w-4 h-4 text-pinkDeep"></i>
+                F-2-7 점수제 비자 실시간 정밀 계산기 (2026 기준)
+              </h4>
+              <span id="f27-total-badge" class="px-3 py-1 bg-purple-100 text-purple-700 font-extrabold rounded-full text-xs border border-purple-300">
+                총합: 78점 (80점 미달)
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div class="bg-pink-50/70 p-2.5 rounded-xl border border-pink-100">
+                <span id="lbl-f27-age" class="text-gray-500 block">연령 (최대 25점)</span>
+                <span id="f27-pt-age" class="font-bold text-darkSlate">25점</span>
+              </div>
+              <div class="bg-pink-50/70 p-2.5 rounded-xl border border-pink-100">
+                <span id="lbl-f27-degree" class="text-gray-500 block">학력 (최대 25점)</span>
+                <span id="f27-pt-degree" class="font-bold text-darkSlate">20점</span>
+              </div>
+              <div class="bg-pink-50/70 p-2.5 rounded-xl border border-pink-100">
+                <span id="lbl-f27-topik" class="text-gray-500 block">한국어/KIIP (최대 20점)</span>
+                <span id="f27-pt-topik" class="font-bold text-darkSlate">18점</span>
+              </div>
+              <div class="bg-pink-50/70 p-2.5 rounded-xl border border-pink-100">
+                <span id="lbl-f27-income" class="text-gray-500 block">소득 (최대 60점)</span>
+                <span id="f27-pt-income" class="font-bold text-darkSlate">10점</span>
+              </div>
+            </div>
+
+            <div id="f27-recommendation-box" class="p-3 bg-purple-100/60 rounded-2xl border border-purple-200 text-xs text-purple-900 font-medium">
+              💡 <strong>점수 극복 팁:</strong> KIIP 사회통합프로그램 5단계를 이수하시면 추가 10점을 받아 즉시 80점 커트라인을 돌파할 수 있습니다!
+            </div>
+          </div>
+
+          <!-- Step-by-step Action Roadmap Timeline -->
+          <div class="glass-card p-5 rounded-3xl shadow-md border border-pink-100 space-y-3">
+            <h4 id="lbl-roadmap-title" class="text-sm font-bold text-darkSlate flex items-center gap-2">
+              <i data-lucide="route" class="w-4 h-4 text-pinkDeep"></i> 단계별 성공 로드맵
+            </h4>
+
+            <div class="space-y-3 relative border-l-2 border-pink-300 ml-3 pl-4 text-xs">
+              <div class="relative">
+                <span class="absolute -left-[23px] top-0 w-3.5 h-3.5 rounded-full bg-pinkDeep border-2 border-white"></span>
+                <h5 id="roadmap-step1-title" class="font-bold text-pinkDeep">0 ~ 3개월: 서류 준비 및 조건 충족</h5>
+                <p id="roadmap-step1-desc" class="text-mutedSlate mt-0.5">
+                  • TOPIK 5급 유지 또는 KIIP 5단계 수강 신청.<br>
+                  • 표준근로계약서 작성을 위한 회사 국민고용 인원 (최소 5명) 확인.
+                </p>
+              </div>
+
+              <div class="relative">
+                <span class="absolute -left-[23px] top-0 w-3.5 h-3.5 rounded-full bg-purple-500 border-2 border-white"></span>
+                <h5 id="roadmap-step2-title" class="font-bold text-purple-600">3 ~ 6개월: 비자 변경 신청 및 서류 심사</h5>
+                <p id="roadmap-step2-desc" class="text-mutedSlate mt-0.5">
+                  • 하이코리아(HiKorea) 온라인 예약 또는 출입국 관서 방문.<br>
+                  • 고용사유서, 학위증명서, 신원보증서 등 필수 서류 제출.
+                </p>
+              </div>
+
+              <div class="relative">
+                <span class="absolute -left-[23px] top-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white"></span>
+                <h5 id="roadmap-step3-title" class="font-bold text-emerald-600">6 ~ 12개월: 외국인등록증 발급 및 차기 승급</h5>
+                <p id="roadmap-step3-desc" class="text-mutedSlate mt-0.5">
+                  • 신규 외국인등록증(ARC) 수령.<br>
+                  • F-2-7 전환을 위한 소득 증빙 체계적 관리.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: KOSIS STATISTICAL ANALYTICS         -->
+    <!-- ========================================== -->
+    <section id="tab-kosis" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl shadow-xl border border-pink-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 id="kosis-title" class="text-xl font-bold text-darkSlate flex items-center gap-2">
+              <span class="p-2 bg-pink-100 rounded-2xl text-pinkDeep"><i data-lucide="line-chart" class="w-5 h-5"></i></span>
+              KOSIS 국가통계 기반 유학생 정주 및 취업 데이터 익스플로러
+            </h2>
+            <p id="kosis-sub" class="text-xs text-mutedSlate mt-1">통계청 및 법무부 출입국 외국인 정책본부 공공데이터 결합 지표입니다.</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="kosis-filter-major" onchange="updateKosisCharts()" class="px-3 py-1.5 bg-white border border-pink-300 rounded-xl text-xs font-semibold text-gray-700 shadow-sm focus:outline-none">
+              <option value="all">전체 전공</option>
+              <option value="stem">STEM (공학/IT)</option>
+              <option value="biz">경영 / 경제</option>
+              <option value="hum">인문 / 사회</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOSIS KPI Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-5 rounded-2xl border-l-4 border-pinkDeep shadow-sm">
+          <p id="kpi1-lbl" class="text-xs font-semibold text-mutedSlate">2026 유학생 국내 취업률</p>
+          <p class="text-2xl font-black text-pinkDeep mt-1">68.4% <span class="text-xs text-green-600 font-normal">▲ 3.2%</span></p>
+          <p id="kpi1-sub" class="text-[10px] text-gray-500 mt-1">전년 대비 지속 증가 추세</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border-l-4 border-purple-500 shadow-sm">
+          <p id="kpi2-lbl" class="text-xs font-semibold text-mutedSlate">E-7 비자 전환 성공 비율</p>
+          <p class="text-2xl font-black text-purple-600 mt-1">42.1% <span class="text-xs text-green-600 font-normal">▲ 5.1%</span></p>
+          <p id="kpi2-sub" class="text-[10px] text-gray-500 mt-1">STEM 및 이공계 비율이 우세</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm">
+          <p id="kpi3-lbl" class="text-xs font-semibold text-mutedSlate">F-2-R 지역 특화 정주 증가율</p>
+          <p class="text-2xl font-black text-emerald-600 mt-1">128% <span class="text-xs text-green-600 font-normal">▲ 초고속</span></p>
+          <p id="kpi3-sub" class="text-[10px] text-gray-500 mt-1">지자체 추천제 확대로 급증</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl border-l-4 border-blue-500 shadow-sm">
+          <p id="kpi4-lbl" class="text-xs font-semibold text-mutedSlate">평균 초임 연봉 (대졸 유학생)</p>
+          <p class="text-2xl font-black text-blue-600 mt-1">3,480만 원</p>
+          <p id="kpi4-sub" class="text-[10px] text-gray-500 mt-1">GNI 80% 기준(약 3,600만 원) 근접</p>
+        </div>
+      </div>
+
+      <!-- KOSIS Interactive Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-5 rounded-3xl shadow-md border border-pink-100">
+          <h3 id="lbl-chart1-title" class="text-sm font-bold text-darkSlate flex items-center gap-2 mb-3">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-pinkDeep"></i> 전공 계열별 취업률 및 평균 시작 연봉
+          </h3>
+          <div class="relative h-64">
+            <canvas id="kosisMajorChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card p-5 rounded-3xl shadow-md border border-pink-100">
+          <h3 id="lbl-chart2-title" class="text-sm font-bold text-darkSlate flex items-center gap-2 mb-3">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i> 지역별 외국인 유학생 정주 분포
+          </h3>
+          <div class="relative h-64 flex items-center justify-center">
+            <canvas id="kosisRegionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 3: MULTI-LLM AI VISA CONSULTANT        -->
+    <!-- ========================================== -->
+    <section id="tab-ai-consultant" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl shadow-xl border border-pink-200">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h2 id="ai-title" class="text-xl font-bold text-darkSlate flex items-center gap-2">
+              <span class="p-2 bg-pink-100 rounded-2xl text-pinkDeep"><i data-lucide="sparkle" class="w-5 h-5"></i></span>
+              2026 AI 출입국 전문 비자 컨설턴트
+            </h2>
+            <p id="ai-sub" class="text-xs text-mutedSlate mt-1">하이코리아 최신 지침과 법무부 출입국 행정 규칙이 반영되어 있습니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Chat UI Container -->
+      <div class="glass-card rounded-3xl border border-pink-200 shadow-xl overflow-hidden flex flex-col h-[580px]">
+        
+        <!-- Header Bar -->
+        <div class="p-4 bg-gradient-to-r from-pinkDeep to-purple-600 text-white flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+              <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+              <h3 id="ai-chat-header-title" class="text-sm font-bold">2026 비자 전문 AI 컨설턴트</h3>
+              <p id="ai-chat-header-sub" class="text-[10px] text-pink-100">E-7, F-2-7, D-10 구직계획서 전문 실시간 답변</p>
+            </div>
+          </div>
+          <button onclick="clearAiChat()" id="btn-ai-clear" class="text-xs px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-white font-medium">
+            초기화
+          </button>
+        </div>
+
+        <!-- Quick Prompts Pills -->
+        <div id="ai-quick-prompts" class="p-2.5 bg-pink-50/60 border-b border-pink-100 flex items-center gap-2 overflow-x-auto text-xs shrink-0">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Messages Body -->
+        <div id="ai-chat-body" class="flex-grow p-4 overflow-y-auto space-y-4 text-xs">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-pinkDeep text-white flex items-center justify-center font-bold shrink-0">AI</div>
+            <div id="ai-welcome-msg" class="bg-white p-3.5 rounded-2xl border border-pink-100 shadow-sm max-w-[85%] text-gray-800 leading-relaxed">
+              안녕하세요! 외국인 유학생 커리어 & 비자 메이트 AI 컨설턴트입니다. 비자 조건, 제출 서류, 연봉 요건에 대해 무엇이든 질문해 주세요!
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 bg-white border-t border-pink-100 flex items-center gap-2">
+          <input type="text" id="ai-user-input" onkeydown="if(event.key==='Enter') sendAiMessage()" placeholder="비자 관련 질문을 입력하세요..." class="flex-grow px-4 py-2.5 rounded-2xl bg-pink-50/50 border border-pink-200 text-xs focus:outline-none focus:ring-2 focus:ring-pinkDeep">
+          <button onclick="sendAiMessage()" id="btn-ai-send" class="px-4 py-2.5 bg-gradient-to-r from-pinkDeep to-pinkAccent text-white font-bold rounded-2xl text-xs hover:opacity-90 transition shadow-md flex items-center gap-1">
+            <span>전송</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 4: DOCUMENT VISION SCANNER             -->
+    <!-- ========================================== -->
+    <section id="tab-scanner" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl shadow-xl border border-pink-200">
+        <h2 id="scanner-title" class="text-xl font-bold text-darkSlate flex items-center gap-2">
+          <span class="p-2 bg-pink-100 rounded-2xl text-pinkDeep"><i data-lucide="scan-line" class="w-5 h-5"></i></span>
+          AI 비자 서류 자동 검증 시뮬레이터
+        </h2>
+        <p id="scanner-sub" class="text-xs text-mutedSlate mt-1">외국인등록증, TOPIK, 근로계약서 스캔하여 비자 신청 적격성을 검증합니다.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Dropzone / Test Buttons -->
+        <div class="lg:col-span-5 glass-card p-6 rounded-3xl border-2 border-dashed border-pink-300 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden bg-white/60 min-h-[300px]">
+          <div id="scanner-laser" class="hidden absolute inset-0 scanner-line"></div>
+          
+          <div class="w-16 h-16 rounded-full bg-pink-100 text-pinkDeep flex items-center justify-center">
+            <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+          </div>
+
+          <div>
+            <p id="lbl-scan-drop" class="text-sm font-bold text-darkSlate">서류 파일 선택 또는 드래그</p>
+            <p id="lbl-scan-support" class="text-xs text-gray-400 mt-1">JPG, PNG, PDF 지원 (샘플 서류로 바로 테스트 가능)</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 justify-center pt-2">
+            <button onclick="runSampleScan('arc')" id="btn-scan-arc" class="px-3 py-1.5 bg-pinkDeep text-white text-xs font-bold rounded-xl shadow hover:bg-pink-600 transition">
+              📑 외국인등록증
+            </button>
+            <button onclick="runSampleScan('contract')" id="btn-scan-contract" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-xl shadow hover:bg-purple-700 transition">
+              📝 근로계약서
+            </button>
+            <button onclick="runSampleScan('topik')" id="btn-scan-topik" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl shadow hover:bg-blue-700 transition">
+              🎓 TOPIK 성적표
+            </button>
+          </div>
+        </div>
+
+        <!-- Scan Output Box -->
+        <div class="lg:col-span-7 glass-card p-6 rounded-3xl border border-pink-200 shadow-md space-y-4">
+          <h3 id="lbl-scan-res-title" class="text-sm font-bold text-darkSlate flex items-center gap-2">
+            <i data-lucide="check-square" class="w-4 h-4 text-pinkDeep"></i> AI 서류 정밀 분석 결과
+          </h3>
+
+          <div id="scan-result-box" class="space-y-3 text-xs">
+            <div id="lbl-scan-placeholder" class="p-4 bg-pink-50/50 rounded-2xl border border-pink-100 text-center text-gray-500">
+              좌측에서 테스트할 샘플 서류를 선택해 보세요.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 5: JOBS & KSCO MATCHING                -->
+    <!-- ========================================== -->
+    <section id="tab-jobs" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl shadow-xl border border-pink-200">
+        <h2 id="jobs-title" class="text-xl font-bold text-darkSlate flex items-center gap-2">
+          <span class="p-2 bg-pink-100 rounded-2xl text-pinkDeep"><i data-lucide="briefcase" class="w-5 h-5"></i></span>
+          E-7 비자 발급 가능 KSCO 직종 매칭 채용관
+        </h2>
+        <p id="jobs-sub" class="text-xs text-mutedSlate mt-1">E-7-1 전문인력 비자가 허용되는 87개 KSCO 직종 매칭 채용 정보입니다.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="job-cards-container">
+        <!-- Filled via JS to support dynamic language -->
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="bg-white/80 border-t border-pink-200 py-6 px-4 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-mutedSlate gap-3">
+      <div>
+        <p class="font-bold text-darkSlate">외국인 유학생 커리어 & 비자 메이트 Platform</p>
+        <p class="mt-0.5">© 2026 Team Top Kim Yubin (최예서 · 강지원 · 김유빈). All rights reserved.</p>
+      </div>
+      <div class="flex items-center gap-4 text-[11px]">
+        <span>2026 법무부 출입국 지침 준수</span>
+        <span>KOSIS 통계 연동</span>
+        <span>Team 최강 김유빈</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- INITIALIZATION SCRIPT -->
+  <script>
+    window.onload = function() {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+      selectLanguage('ko');
+    };
+  </script>
+</body>
+</html>
+
